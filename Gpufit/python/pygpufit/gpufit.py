@@ -52,6 +52,14 @@ class ModelID():
     GAUSS_2D_ROTATED = 3
     CAUCHY_2D_ELLIPTIC = 4
     LINEAR_1D = 5
+    FLETCHER_POWELL_HELIX = 6,
+    BROWN_DENNIS = 7
+    SPLINE_1D = 8
+    SPLINE_2D = 9
+    SPLINE_3D = 10
+    SPLINE_3D_MULTICHANNEL = 11
+    SPLINE_3D_PHASE_MULTICHANNEL = 12
+    GAUSS_3D_ARB = 13
 
 
 class EstimatorID():
@@ -172,7 +180,7 @@ def fit(data, weights, model_id, initial_parameters, tolerance=None, max_number_
         user_info_p = None
 
     # call into the library (measure time)
-    t0 = time.clock()
+    t0 = time.perf_counter()
     status = gpufit_func(
         gpufit_func.argtypes[0](number_fits), \
         gpufit_func.argtypes[1](number_points), \
@@ -190,7 +198,7 @@ def fit(data, weights, model_id, initial_parameters, tolerance=None, max_number_
         states.ctypes.data_as(gpufit_func.argtypes[13]), \
         chi_squares.ctypes.data_as(gpufit_func.argtypes[14]), \
         number_iterations.ctypes.data_as(gpufit_func.argtypes[15]))
-    t1 = time.clock()
+    t1 = time.perf_counter()
 
 
     # check status
