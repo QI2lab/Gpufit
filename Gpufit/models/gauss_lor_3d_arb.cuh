@@ -1,5 +1,5 @@
-#ifndef GPUFIT_GAUSS2DARB_CUH_INCLUDED
-#define GPUFIT_GAUSS2DARB_CUH_INCLUDED
+#ifndef GPUFIT_GAUSS_LOR_ARB_CUH_INCLUDED
+#define GPUFIT_GAUSS_LOR_ARB_CUH_INCLUDED
 
 __device__ void calculate_gauss_lor_3d_arb(
     float const * parameters,
@@ -53,8 +53,8 @@ __device__ void calculate_gauss_lor_3d_arb(
     	derivative[point_index + 1*n_points] = p[0] * derivative[point_index] * (x - p[1]) / p[4] / p[4] / lor_factor;
         derivative[point_index + 2*n_points] = p[0] * derivative[point_index] * (y - p[2]) / p[4] / p[4] / lor_factor;
     	derivative[point_index + 3*n_points] = p[0] * derivative[point_index] * (-(z - p[3]) / p[5] / p[5] / lor_factor / lor_factor * 0.5f * r_sqr / p[4] / p[4] + 1.0f / lor_factor * 2.0f * (z - p[3]) / p[5] / p[5]);
-		derivative[point_index + 4*n_points] = p[0] * derivative[point_index] * r_sqr / lor / p[4] / p[4] / p[4];
-		derivative[point_index + 5*n_points] = p[0] * derivative[point_index] (r_sqr * 0.5f / p[4] / p[4] / lor_factor / lor_factor * 2.0f * (z - p[3]) * (z - p[3]) / p[5] / p[5] / p[5] + 1.0f / lor_factor * 2.0f * (z - p[3]) * (z - p[3]) / p[5] / p[5] / p[5]);
+		derivative[point_index + 4*n_points] = p[0] * derivative[point_index] * r_sqr / lor_factor / p[4] / p[4] / p[4];
+		derivative[point_index + 5*n_points] = p[0] * derivative[point_index] * (r_sqr * 0.5f / p[4] / p[4] / lor_factor / lor_factor * 2.0f * (z - p[3]) * (z - p[3]) / p[5] / p[5] / p[5] + 1.0f / lor_factor * 2.0f * (z - p[3]) * (z - p[3]) / p[5] / p[5] / p[5]);
 		derivative[point_index + 6*n_points] = 1.0;
 	}
     else{
