@@ -1,3 +1,14 @@
+# Notes on qi2lab repo:
+The build instructions for the Gpufit source suggest using Visual Studio 2013. However, this version is not compatible
+with certain all versions of CUDA/nvcc. 
+
+For example, with CUDA 11.2 the build files can be created with CMake using
+
+`cmake -G "Visual Studio 16 2019" C:\Sources\Gpufit`
+
+See my example batch files [for Windows](run_cmake_windows.bat) and [for Linxux]()
+
+
 # Gpufit
 
 Levenberg Marquardt curve fitting in CUDA.
