@@ -45,9 +45,9 @@ __device__ void calculate_gauss3d_rot_arb(
 
     if (point_index < nsize){
         // swapping phi/-psi, theta/-theta, psi/-phi will give us the inverse Euler matrix instead of the forward one, as desired
-        phi = -p[10]
-        theta = -p[9]
-        psi = -p[8]
+        REAL const phi = -p[10];
+        REAL const theta = -p[9];
+        REAL const psi = -p[8];
 
         // Euler rotation matrix
         REAL const r00 = cos(phi) * cos(theta) * cos(psi) - sin(phi) * sin(psi);
@@ -99,10 +99,10 @@ __device__ void calculate_gauss3d_rot_arb(
         REAL const ex = expf(-0.5f * (xrot * xrot / p[4] / p[4] + yrot * yrot / p[5] / p[5] + zrot * zrot / p[6] / p[6]));
 
         // compute function value
-        value[point_index] =  p[7] + p[0] * ex
+        value[point_index] =  p[7] + p[0] * ex;
 
         //compute function partial derivatives
-        derivative[point_index + 0*n_points] = ex
+        derivative[point_index + 0*n_points] = ex;
     	derivative[point_index + 1*n_points] = p[0] * ex * (xrot / p[4] / p[4] * r00 + yrot / p[5] / p[5] * r10 + zrot / p[6] / p[6] * r20);
         derivative[point_index + 2*n_points] = p[0] * ex * (xrot / p[4] / p[4] * r01 + yrot / p[5] / p[5] * r11 + zrot / p[6] / p[6] * r21);
     	derivative[point_index + 3*n_points] = p[0] * ex * (xrot / p[4] / p[4] * r02 + yrot / p[5] / p[5] * r12 + zrot / p[6] / p[6] * r22);
@@ -135,11 +135,6 @@ __device__ void calculate_gauss3d_rot_arb(
 	     derivative[point_index + 9*n_points] = 0;
 	     derivative[point_index + 10*n_points] = 0;
 	 }
-
-
-	
-     	}
-
 }
 
 #endif
