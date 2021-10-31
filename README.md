@@ -1,4 +1,6 @@
-# Notes on qi2lab repo:
+# Notes on building the qi2lab fork of Gpufit:
+
+## building on Windows
 The build instructions for the Gpufit source suggest using Visual Studio 2013. However, this version is not compatible
 with certain all versions of CUDA/nvcc. 
 
@@ -6,7 +8,11 @@ For example, with CUDA 11.2 the build files can be created with CMake using
 
 `cmake -G "Visual Studio 16 2019" C:\Sources\Gpufit`
 
-See my example batch files [for Windows](run_cmake_windows.bat) and [for Linxux]()
+See my example batch files [for Windows](run_cmake_windows.bat). This script will generate Visual Studio project files. Then open Visual Studio and build the project.
+
+## building on Linux
+The Gpufit source code can be built on Linux using cmake and make. See my [example shell script](build_gpufit_linux.sh)
+
 
 
 # Gpufit
