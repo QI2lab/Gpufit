@@ -16,9 +16,8 @@ Then, navigate to the build directory and open ALL_BUILD.vcxproj with Visual Stu
 The Gpufit source code can be built on Linux using cmake and make. See my [example shell script](build_gpufit_linux.sh)
 
 # Installing pygpufit
-After compiling, the python package is located in. 
-`<build directory>\Debug\pyGpufit
-Navigate to this folder, ctivate your conda or virtual environment, and install with `pip install .`
+After compiling, the python package is located in `<build directory>\Debug\pyGpufit`
+Navigate to this folder, activate your conda or virtual environment, and install with `pip install .`
 
 # Gpufit
 
