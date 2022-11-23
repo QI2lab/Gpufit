@@ -10,8 +10,7 @@ echo %bdir%
 mkdir "%bdir%"
 chdir "%bdir%"
 rem command recommended here: https://gpufit.readthedocs.io/en/latest/installation.html
-rem cmake -G "Visual Studio 14 2015 Win64" C:\Users\ptbrown2\Documents\Gpufit\Gpufit
 rem  cmake -G "Visual Studio 14 2015 Win64" "%gpufitdir%"
-cmake -G "Visual Studio 15 2017" -A x64 "%gpufitdir%"
+rem cmake -G "Visual Studio 15 2017" -A x64 "%gpufitdir%"
 rem if using version of nvcc/CUDA which is not compatible with MSVS 2013, then install MSVS 2019 and run
-rem cmake -G "Visual Studio 16 2019" "%gpufitdir%"
+cmake -G "Visual Studio 16 2019" "%gpufitdir%"
