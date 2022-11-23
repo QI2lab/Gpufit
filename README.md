@@ -8,12 +8,17 @@ For example, with CUDA 11.2 the build files can be created with CMake using
 
 `cmake -G "Visual Studio 16 2019" C:\Sources\Gpufit`
 
-See my example batch files [for Windows](run_cmake_windows.bat). This script will generate Visual Studio project files. Then open Visual Studio and build the project.
+See my example batch files [for Windows](run_cmake_windows.bat). This script will generate Visual Studio project files. 
+
+Then, navigate to the build directory and open ALL_BUILD.vcxproj with Visual Studio. Go to `build -> build solution` and build the project.
 
 ## building on Linux
 The Gpufit source code can be built on Linux using cmake and make. See my [example shell script](build_gpufit_linux.sh)
 
-
+# Installing pygpufit
+After compiling, the python package is located in. 
+`<build directory>\Debug\pyGpufit
+Navigate to this folder, ctivate your conda or virtual environment, and install with `pip install .`
 
 # Gpufit
 
