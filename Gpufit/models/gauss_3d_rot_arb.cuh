@@ -44,55 +44,57 @@ __device__ void calculate_gauss3d_rot_arb(
 
 
     if (point_index < nsize){
+        REAL const phi = p[8];
+        REAL const theta = p[9];
+        REAL const psi = p[10];
+
         // swapping phi/-psi, theta/-theta, psi/-phi will give us the inverse Euler matrix instead of the forward one, as desired
-        REAL const phi = -p[10];
-        REAL const theta = -p[9];
-        REAL const psi = -p[8];
 
-        // Euler rotation matrix
-        REAL const r00 = cos(phi) * cos(theta) * cos(psi) - sin(phi) * sin(psi);
-        REAL const r01 = -cos(phi) * cos(theta) * sin(psi) - sin(phi) * cos(psi);
-        REAL const r02 = cos(phi) * sin(theta);
-        REAL const r10 = sin(phi) * cos(theta) * cos(psi) + cos(phi) * sin(psi);
-        REAL const r11 = -sin(phi) * cos(theta) * sin(psi) + cos(phi) * cos(psi);
-        REAL const r12 = sin(phi) * sin(theta);
-        REAL const r20 = -sin(theta) * cos(psi);
-        REAL const r21 = sin(theta) * sin(psi);
-        REAL const r22= cos(theta);
+        // Inverse Euler rotation matrix = R^{-1}
+        REAL const r00 =  cos(-psi) * cos(-theta) * cos(-phi) - sin(-psi) * sin(-phi);
+        REAL const r01 = -cos(-psi) * cos(-theta) * sin(-phi) - sin(-psi) * cos(-phi);
+        REAL const r02 =  cos(-psi) * sin(-theta);
+        REAL const r10 =  sin(-psi) * cos(-theta) * cos(-phi) + cos(-psi) * sin(-phi);
+        REAL const r11 = -sin(-psi) * cos(-theta) * sin(-phi) + cos(-psi) * cos(-phi);
+        REAL const r12 =  sin(-psi) * sin(-theta);
+        REAL const r20 = -sin(-theta) * cos(-phi);
+        REAL const r21 =  sin(-theta) * sin(-phi);
+        REAL const r22 =  cos(-theta);
 
-        // dE/dphi
-        REAL const dp00 = -sin(phi) * cos(theta) * cos(psi) - cos(phi) * sin(psi);
-        REAL const dp01 = sin(phi) * cos(theta) * sin(psi) - cos(phi) * cos(psi);
-        REAL const dp02 = -sin(phi) * sin(theta);
-        REAL const dp10 = cos(phi) * cos(theta) * cos(psi) - sin(phi) * sin(psi);
-        REAL const dp11 = -cos(phi) * cos(theta) * sin(psi) - sin(phi) * cos(psi);
-        REAL const dp12 = cos(phi) * sin(theta);
-        REAL const dp20 = 0;
-        REAL const dp21 = 0;
-        REAL const dp22 = 0;
+        // dR^{-1}/dphi
+        REAL const dp00 = -1 * (-cos(-psi) * cos(-theta) * sin(-phi) - sin(-psi) * cos(-phi));
+        REAL const dp01 = -1 * (-cos(-psi) * cos(-theta) * cos(-phi) + sin(-psi) * sin(-phi));
+        REAL const dp02 = -1 * 0;
+        REAL const dp10 = -1 * (-sin(-psi) * cos(-theta) * sin(-phi) + cos(-psi) * cos(-phi));
+        REAL const dp11 = -1 * (-sin(-psi) * cos(-theta) * cos(-phi) - cos(-psi) * sin(-phi));
+        REAL const dp12 = -1 * 0;
+        REAL const dp20 = -1 * sin(-theta) * sin(-phi);
+        REAL const dp21 = -1 * sin(-theta) * cos(-phi);
+        REAL const dp22 = -1 * 0;
 
-        // dE/dtheta
-        REAL const dt00 = -cos(phi) * sin(theta) * cos(psi);
-        REAL const dt01 = cos(phi) * sin(theta) * sin(psi);
-        REAL const dt02 = cos(phi) * cos(theta);
-        REAL const dt10 = -sin(phi) * sin(theta) * cos(psi);
-        REAL const dt11 = sin(phi) * sin(theta) * sin(psi);
-        REAL const dt12 = sin(phi) * cos(theta);
-        REAL const dt20 = -cos(theta) * cos(psi);
-        REAL const dt21 = cos(theta) * sin(psi);
-        REAL const dt22 = -sin(theta);
+        // dR^{-1}/dtheta
+        REAL const dt00 = -1 * -cos(-psi) * sin(-theta) * cos(-phi);
+        REAL const dt01 = -1 * cos(-psi) * sin(-theta) * sin(-phi);
+        REAL const dt02 = -1 * cos(-psi) * cos(-theta);
+        REAL const dt10 = -1 * -sin(-psi) * sin(-theta) * cos(-phi);
+        REAL const dt11 = -1 * sin(-psi) * sin(-theta) * sin(-phi);
+        REAL const dt12 = -1 * sin(-psi) * cos(-theta);
+        REAL const dt20 = -1 * -cos(-theta) * cos(-phi);
+        REAL const dt21 = -1 * cos(-theta) * sin(-phi);
+        REAL const dt22 = - 1 * -sin(-theta);
 
-        // dE/dpsi
-        REAL const dx00 = -cos(phi) * cos(theta) * sin(psi) - sin(phi) * cos(psi);
-        REAL const dx01 = -cos(phi) * cos(theta) * cos(psi) + sin(phi) * sin(psi);
-        REAL const dx02 = 0;
-        REAL const dx10 = -sin(phi) * cos(theta) * sin(psi) + cos(phi) * cos(psi);
-        REAL const dx11 = -sin(phi) * cos(theta) * cos(psi) - cos(phi) * sin(psi);
-        REAL const dx12 = 0;
-        REAL const dx20 = sin(theta) * sin(psi);
-        REAL const dx21 = sin(theta) * cos(psi);
-        REAL const dx22 = 0;
+        // dR^{-1}/dpsi
+        REAL const dx00 = -1 * (-sin(-psi) * cos(-theta) * cos(-phi) - cos(-psi) * sin(-phi));
+        REAL const dx01 = -1 * (sin(-psi) * cos(-theta) * sin(-phi) - cos(-psi) * cos(-phi));
+        REAL const dx02 = -1 * -sin(-psi) * sin(-theta);
+        REAL const dx10 = -1 * (cos(-psi) * cos(-theta) * cos(-phi) - sin(-psi) * sin(-phi));
+        REAL const dx11 = -1 * (-cos(-psi) * cos(-theta) * sin(-phi) - sin(-psi) * cos(-phi));
+        REAL const dx12 = -1 * cos(-psi) * sin(-theta);
+        REAL const dx20 = -1 * 0;
+        REAL const dx21 = -1 * 0;
+        REAL const dx22 = -1 * 0;
 
+        // r_rot = R^{-1} * r
         REAL const xrot = (x - p[1]) * r00 + (y - p[2]) * r01 + (z - p[3]) * r02;
         REAL const yrot = (x - p[1]) * r10 + (y - p[2]) * r11 + (z - p[3]) * r12;
         REAL const zrot = (x - p[1]) * r20 + (y - p[2]) * r21 + (z - p[3]) * r22;
@@ -103,6 +105,7 @@ __device__ void calculate_gauss3d_rot_arb(
 
         //compute function partial derivatives
         derivative[point_index + 0*n_points] = ex;
+        // df/dcx = df/dx * dxrot / dcx + df/dy * dyrot / dcx + df/dz * dzrot / dcx
     	derivative[point_index + 1*n_points] = p[0] * ex * (xrot / p[4] / p[4] * r00 + yrot / p[5] / p[5] * r10 + zrot / p[6] / p[6] * r20);
         derivative[point_index + 2*n_points] = p[0] * ex * (xrot / p[4] / p[4] * r01 + yrot / p[5] / p[5] * r11 + zrot / p[6] / p[6] * r21);
     	derivative[point_index + 3*n_points] = p[0] * ex * (xrot / p[4] / p[4] * r02 + yrot / p[5] / p[5] * r12 + zrot / p[6] / p[6] * r22);
@@ -110,6 +113,7 @@ __device__ void calculate_gauss3d_rot_arb(
 	    derivative[point_index + 5*n_points] = p[0] * ex * yrot * yrot / p[5] / p[5] / p[5];
 	    derivative[point_index + 6*n_points] = p[0] * ex * zrot * zrot / p[6] / p[6] / p[6];
 	    derivative[point_index + 7*n_points] = 1;
+	    // df / dphi = df/dx * dxrot / dphi + df/dy * dyrot / dphi + df/dz * dzrot / dphi
 	    derivative[point_index + 8*n_points] = -p[0] * ex * (xrot / p[4] / p[4] * ((x - p[1]) * dp00 + (y - p[2]) * dp01  + (z - p[3]) * dp02) +
 	                                                         yrot / p[5] / p[5] * ((x - p[1]) * dp10 + (y - p[2]) * dp11  + (z - p[3]) * dp12) +
 	                                                         zrot / p[6] / p[6] * ((x - p[1]) * dp20 + (y - p[2]) * dp21  + (z - p[3]) * dp22));
