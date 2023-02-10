@@ -19,7 +19,8 @@ enum ModelID {
     SPLINE_3D_PHASE_MULTICHANNEL = 12,
     GAUSS_3D_ARB = 13,
     GAUSS_LOR_3D_ARB = 14,
-    GAUSS_3D_ROT_ARB = 15
+    GAUSS_3D_ROT_ARB = 15,
+	GAUSS_3D_ASYM_ARB = 16,
 };
 
 // estimator ID
