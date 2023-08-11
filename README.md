@@ -1,4 +1,10 @@
 # Notes on building the qi2lab fork of Gpufit:
+First clone the repository
+```
+git clone https://github.com/QI2lab/Gpufit.git
+cd Gpufit
+```
+Ensure that the top level directory is named `Gpufit`, otherwise cmake will not be able to generate the build files
 
 ## building on Windows
 The build instructions for the Gpufit source suggest using Visual Studio 2013. However, this version is not compatible
@@ -16,7 +22,7 @@ Then, navigate to the build directory and open ALL_BUILD.vcxproj with Visual Stu
 The Gpufit source code can be built on Linux using cmake and make. See my [example shell script](build_gpufit_linux.sh)
 
 # Installing pygpufit
-After compiling, the python package is located in `<build directory>\Debug\pyGpufit`
+After compiling, the python package is located in either `<build directory>\pyGpufit` or `<build directory>\Debug\pyGpufit` depending on your build options
 Navigate to this folder, activate your conda or virtual environment, and install with `pip install .`
 
 # Gpufit
