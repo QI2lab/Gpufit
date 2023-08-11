@@ -4,7 +4,6 @@ First clone the repository
 git clone https://github.com/QI2lab/Gpufit.git
 cd Gpufit
 ```
-Ensure that the top level directory is named `Gpufit`, otherwise cmake will not be able to generate the build files
 
 ## building on Windows
 The build instructions for the Gpufit source suggest using Visual Studio 2013. However, this version is not compatible

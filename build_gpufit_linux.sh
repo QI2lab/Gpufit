@@ -1,7 +1,8 @@
 #!/bin/sh
 # build gpufit in a new directory prefixed with the current date/time. Assume that this script is run from the top directory of the gpufit source code. The code will be built in a folder one level above this
 
-script_dir="$(dirname -- "$(readlink -f "${BASH_SOURCE}")")"
+script_dir_rel="$(dirname -- "$(readlink -f "${BASH_SOURCE}")")"
+script_dir="$(readlink -f "${script_dir_rel}")"
 
 # #######################
 # define location of cmake
@@ -20,6 +21,8 @@ build_dir_rel="$script_dir""/../"$(date  +"%Y_%m_%d_%H_%M_%S")_gpufit_build
 # resolve full path for convenience
 build_dir="$(readlink -f "${build_dir_rel}")"
 
+#build_dir=../Gpufit
+
 # build directory and move there
 mkdir $build_dir
 cd $build_dir
@@ -31,7 +34,7 @@ echo "building GPUfit from ${script_dir} to directory ${build_dir}"
 # #######################
 
 # generate build files
-$cmake_path -DCMAKE_BUILD_TYPE=RELEASE ../Gpufit "$script_dir"
+$cmake_path -DCMAKE_BUILD_TYPE=RELEASE "$script_dir"
 
 # build GPUfit
 make
