@@ -30,7 +30,9 @@ __device__ void calculate_model(
     int const fit_index,
     int const chunk_index,
     char * user_info,
-    int const user_info_size)
+    std::size_t const user_info_size,
+    int const total_n_fits,
+    int const chunk_fit_offset)
 {
     switch (model_id)
     {
@@ -74,16 +76,16 @@ __device__ void calculate_model(
         calculate_spline3d_phase_multichannel(parameters, n_fits, n_points, value, derivative, point_index, fit_index, chunk_index, user_info, user_info_size);
         break;
     case GAUSS_3D_ARB:
-        calculate_gauss3d_arb(parameters, n_fits, n_points, value, derivative, point_index, fit_index, chunk_index, user_info, user_info_size);
+        calculate_gauss3d_arb(parameters, total_n_fits, n_points, value, derivative, point_index, fit_index + chunk_fit_offset, chunk_index, user_info, user_info_size);
 	    break;
     case GAUSS_LOR_3D_ARB:
-        calculate_gauss_lor_3d_arb(parameters, n_fits, n_points, value, derivative, point_index, fit_index, chunk_index, user_info, user_info_size);
+        calculate_gauss_lor_3d_arb(parameters, total_n_fits, n_points, value, derivative, point_index, fit_index + chunk_fit_offset, chunk_index, user_info, user_info_size);
         break;
     case GAUSS_3D_ROT_ARB:
-        calculate_gauss3d_rot_arb(parameters, n_fits, n_points, value, derivative, point_index, fit_index, chunk_index, user_info, user_info_size);
+        calculate_gauss3d_rot_arb(parameters, total_n_fits, n_points, value, derivative, point_index, fit_index + chunk_fit_offset, chunk_index, user_info, user_info_size);
 	    break;
 	case GAUSS_3D_ASYM_ARB:
-		calculate_gauss3d_asym_arb(parameters, n_fits, n_points, value, derivative, point_index, fit_index, chunk_index, user_info, user_info_size);
+        calculate_gauss3d_asym_arb(parameters, total_n_fits, n_points, value, derivative, point_index, fit_index + chunk_fit_offset, chunk_index, user_info, user_info_size);
 	    break;
     default:
         break;

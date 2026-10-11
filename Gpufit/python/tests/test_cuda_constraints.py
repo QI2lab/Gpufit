@@ -1,10 +1,87 @@
 """Numerical acceptance through the compiled native optimizer on an actual device."""
 
+import os
+import subprocess
+import sys
+
 import numpy as np
 import pygpufit.gpufit as gf
 import pytest
 
 pytestmark = pytest.mark.gpu
+
+
+@pytest.mark.parametrize("model_id", [13, 14, 15, 16])
+def test_custom_coordinates_across_internal_chunks(model_id, request):
+    """Every chunk uses its own coordinates and the full batch's size table."""
+    if _chunk_subprocess(request, "2"):
+        return
+    z, y, x = np.meshgrid(
+        np.linspace(-2, 2, 7), np.linspace(-1, 1, 9), np.linspace(-1, 1, 9), indexing="ij"
+    )
+    coords = np.stack([x.ravel(), y.ravel(), z.ravel()])
+    n = x.size
+    centers = np.array([[0, 0, 0], [3, -2, 1], [-4, 5, -3]], np.float32)
+    params = np.array(
+        [
+            [100, *c, 0.4, 0.8, 5]
+            if model_id in (13, 14)
+            else [100, *c, 0.4, 0.5, 0.8, 5, *([0, 0, 0] if model_id == 15 else [])]
+            for c in centers
+        ],
+        np.float32,
+    )
+    start = params.copy()
+    start[:, 1:4] += 0.05
+    relative = coords / np.array([0.4, 0.4 if model_id in (13, 14) else 0.5, 0.8])[:, None]
+    image = 5 + 100 * np.exp(-0.5 * np.sum(relative**2, axis=0))
+    if model_id == 14:
+        lorentz = 1 + relative[2] ** 2
+        image = 5 + 100 * np.exp(-0.5 * np.sum(relative[:2] ** 2, axis=0) / lorentz) / lorentz
+    info = np.concatenate(
+        [
+            (coords[None] + centers[:, :, None]).ravel(),
+            np.full(3, n),
+            np.zeros(0 if model_id == 14 else (2 if model_id == 13 else 3)),
+        ]
+    ).astype(np.float32)
+    # Fix widths/angles to avoid Euler angle degeneracy at zero rotation.
+    mask = np.zeros(params.shape[1], np.int32)
+    mask[:4] = 1
+    result = gf.fit(
+        np.tile(image, (3, 1)).astype(np.float32),
+        None,
+        model_id,
+        start,
+        user_info=info,
+        parameters_to_fit=mask,
+        tolerance=1e-6,
+    )
+    np.testing.assert_array_equal(result[1], 0)
+    np.testing.assert_allclose(result[0], params, atol=3e-4, rtol=3e-4)
+
+
+def test_invalid_chunk_limit_rejected(request):
+    if _chunk_subprocess(request, "invalid"):
+        return
+    with pytest.raises(RuntimeError, match="GPUFIT_MAX_CHUNK_SIZE"):
+        gf.fit(np.ones((1, 3), np.float32), None, gf.ModelID.LINEAR_1D, np.ones((1, 2), np.float32))
+
+
+def _chunk_subprocess(request, limit):
+    # The statically linked Windows CRT reads its environment when the DLL loads.
+    # Set the option before process startup rather than monkeypatching afterward.
+    if os.environ.get("GPUFIT_CHUNK_TEST_CHILD") == "1":
+        return False
+    environment = dict(os.environ, GPUFIT_MAX_CHUNK_SIZE=limit, GPUFIT_CHUNK_TEST_CHILD="1")
+    result = subprocess.run(
+        [sys.executable, "-m", "pytest", "-q", request.node.nodeid, "--tb=short"],
+        env=environment,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    return True
 
 
 def test_device_binary_identity():

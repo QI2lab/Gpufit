@@ -99,6 +99,8 @@ extern __global__ void cuda_calc_curve_values(
     int const n_blocks_per_fit,
     ModelID const model_id,
     int const chunk_index,
+    int const total_n_fits,
+    int const chunk_fit_offset,
     char * user_info,
     std::size_t const user_info_size);
 

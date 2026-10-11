@@ -82,6 +82,8 @@ __global__ void cuda_calc_curve_values(
     int const n_blocks_per_fit,
     ModelID const model_id,
     int const chunk_index,
+    int const total_n_fits,
+    int const chunk_fit_offset,
     char * user_info,
     std::size_t const user_info_size)
 {
@@ -100,7 +102,7 @@ __global__ void cuda_calc_curve_values(
     if (point_index >= n_points)
         return;
 
-    calculate_model(model_id, current_parameters, n_fits, n_points, current_values, current_derivatives, point_index, fit_index, chunk_index, user_info, user_info_size);
+    calculate_model(model_id, current_parameters, n_fits, n_points, current_values, current_derivatives, point_index, fit_index, chunk_index, user_info, user_info_size, total_n_fits, chunk_fit_offset);
 }
 
 /* Description of the sum_up_floats function

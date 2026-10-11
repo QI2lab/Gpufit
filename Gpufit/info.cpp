@@ -1,6 +1,8 @@
 #include "info.h"
 #include <algorithm>
 #include <limits>
+#include <cstdlib>
+#include <cerrno>
 
 Info::Info() :
     n_parameters_(0),
@@ -138,6 +140,21 @@ void Info::set_max_chunk_size()
     }
     max_chunk_size_ = (max_chunk_size_ / i) * i;
     max_chunk_size_ = std::min(max_chunk_size_, n_fits_);
+    // Optional memory tuning and reproducible multi-chunk acceptance tests.
+    // This can only reduce the capacity calculated from actual device memory.
+    char const * chunk_limit = std::getenv("GPUFIT_MAX_CHUNK_SIZE");
+    if (chunk_limit)
+    {
+        char * end = nullptr;
+        errno = 0;
+        unsigned long long const limit = std::strtoull(chunk_limit, &end, 10);
+        if (errno || !chunk_limit[0] || chunk_limit[0] == '-' || *end || !limit
+            || limit > std::numeric_limits<std::size_t>::max())
+        {
+            throw std::runtime_error("GPUFIT_MAX_CHUNK_SIZE must be a positive integer");
+        }
+        max_chunk_size_ = std::min(max_chunk_size_, static_cast<std::size_t>(limit));
+    }
 }
 
 

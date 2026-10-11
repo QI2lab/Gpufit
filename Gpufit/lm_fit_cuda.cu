@@ -185,6 +185,8 @@ void LMFitCUDA::calc_curve_values()
         info_.n_blocks_per_fit_,
         info_.model_id_,
         gpu_data_.chunk_index_,
+        info_.n_fits_,
+        gpu_data_.chunk_index_ * info_.max_chunk_size_,
         gpu_data_.user_info_,
         info_.user_info_size_);
     CUDA_CHECK_STATUS(cudaGetLastError());
