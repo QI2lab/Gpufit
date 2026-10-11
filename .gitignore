@@ -3,6 +3,14 @@
 
 # Python
 __pycache__
+.venv/
+.uv-cache/
+.pytest_cache/
+pytest-cache-files-*/
+.ruff_cache/
+build/
+dist/
+CMakeUserPresets.json
 
 # Gradle/IntelliJ
 Gpufit/java/gpufit/.gradle

@@ -1,0 +1,16 @@
+{
+  "version": 6,
+  "configurePresets": [{
+    "name": "microscopy",
+    "displayName": "QI2lab float32 cuBLAS microscopy",
+    "generator": "Ninja",
+    "binaryDir": "${sourceDir}/build/microscopy",
+    "cacheVariables": {
+      "CMAKE_BUILD_TYPE": "Release",
+      "USE_CUBLAS": "ON",
+      "DOUBLE_PRECISION": "OFF",
+      "BUILD_TESTING": "OFF",
+      "CMAKE_CUDA_ARCHITECTURES": "75;80;86;89;90"
+    }
+  }]
+}

@@ -133,9 +133,9 @@ __device__ void calculate_gauss3d_rot_arb(
         derivative[point_index + 2*n_points] = amp * ex * (xrot / sx_sqr * r01 + yrot / sy_sqr * r11 + zrot / sz_sqr * r21);
     	derivative[point_index + 3*n_points] = amp * ex * (xrot / sx_sqr * r02 + yrot / sy_sqr * r12 + zrot / sz_sqr * r22);
 	    // df/dsigma
-	    derivative[point_index + 4*n_points] = amp * ex * sx / sx_sqr * xrot * xrot;
-	    derivative[point_index + 5*n_points] = amp * ex * sy / sy_sqr * yrot * yrot;
-	    derivative[point_index + 6*n_points] = amp * ex * sz / sz_sqr * zrot * zrot;
+	    derivative[point_index + 4*n_points] = amp * ex * sx / (sx_sqr * sx_sqr) * xrot * xrot;
+	    derivative[point_index + 5*n_points] = amp * ex * sy / (sy_sqr * sy_sqr) * yrot * yrot;
+	    derivative[point_index + 6*n_points] = amp * ex * sz / (sz_sqr * sz_sqr) * zrot * zrot;
 	    // df/dbackground
 	    derivative[point_index + 7*n_points] = 1;
 	    // df / dphi = df/dx * dxrot / dphi + df/dy * dyrot / dphi + df/dz * dzrot / dphi

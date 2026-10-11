@@ -1,0 +1,52 @@
+[build-system]
+requires = ["scikit-build-core==0.11.6"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "pyGpufit"
+version = "1.1.0"
+description = "QI2lab CUDA microscopy fitting with public parameter constraints"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+license-files = ["LICENSE.txt"]
+authors = [{name = "Gpufit contributors and QI2lab"}]
+dependencies = ["numpy>=2.0"]
+classifiers = ["Programming Language :: Python :: 3", "Programming Language :: Python :: 3.12", "Operating System :: Microsoft :: Windows", "Operating System :: POSIX :: Linux", "Topic :: Scientific/Engineering"]
+
+[project.urls]
+Repository = "https://github.com/QI2lab/Gpufit"
+Upstream = "https://github.com/gpufit/Gpufit"
+
+[dependency-groups]
+dev = ["pytest==9.1.1", "ruff==0.16.6"]
+docs = ["sphinx>=8,<9"]
+
+[tool.scikit-build]
+minimum-version = "0.11.6"
+cmake.version = ">=3.26,<4"
+ninja.version = ">=1.12,<2"
+wheel.packages = ["Gpufit/python/pygpufit"]
+wheel.py-api = "py3"
+wheel.install-dir = "pygpufit"
+build.targets = ["Gpufit"]
+sdist.include = ["Gpufit/**", "Cpufit/**", "tests/**", "examples/**", "CMakeLists.txt", "CMakePresets.json", "cmake/**", "scripts/**", "LICENSE.txt"]
+sdist.exclude = [".venv/**", ".uv-cache/**", "build/**", "dist/**"]
+
+[tool.scikit-build.cmake.define]
+USE_CUBLAS = "ON"
+DOUBLE_PRECISION = "OFF"
+BUILD_TESTING = "OFF"
+
+[tool.pytest.ini_options]
+testpaths = ["Gpufit/python/tests"]
+pythonpath = ["Gpufit/python"]
+markers = ["gpu: numerical acceptance on a real CUDA device"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "UP"]
+

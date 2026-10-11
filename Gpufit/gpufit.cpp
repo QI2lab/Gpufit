@@ -2,6 +2,12 @@
 #include "interface.h"
 
 #include <string>
+#include "gpufit_build_manifest.h"
+
+char const * gpufit_get_capabilities()
+{
+    return GPUFIT_BUILD_MANIFEST;
+}
 
 std::string last_error ;
 

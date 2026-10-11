@@ -1,0 +1,21 @@
+{
+  "abi_version": 1,
+  "distribution": "pyGpufit",
+  "version": "@PROJECT_VERSION@",
+  "source_revision": "@GPUFIT_SOURCE_REVISION@",
+  "source_dirty": @GPUFIT_SOURCE_DIRTY@,
+  "precision": "float32",
+  "use_cublas": @GPUFIT_CUBLAS_JSON@,
+  "cuda_toolkit": "@CUDAToolkit_VERSION@",
+  "compiler": "@CMAKE_CXX_COMPILER_ID@ @CMAKE_CXX_COMPILER_VERSION@",
+  "cuda_compiler": "@CMAKE_CUDA_COMPILER_VERSION@",
+  "architectures": "@CMAKE_CUDA_ARCHITECTURES@",
+  "cuda_runtime_linkage": "static",
+  "cublas_linkage": "shared",
+  "models": {
+    "GAUSS_3D_ARB": {"id": 13, "parameters": 7},
+    "GAUSS_LOR_3D_ARB": {"id": 14, "parameters": 7},
+    "GAUSS_3D_ROT_ARB": {"id": 15, "parameters": 11},
+    "GAUSS_3D_ASYM_ARB": {"id": 16, "parameters": 8}
+  }
+}

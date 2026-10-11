@@ -80,6 +80,7 @@ VISIBLE int gpufit_cuda_interface
 );
 
 VISIBLE char const * gpufit_get_last_error() ;
+VISIBLE char const * gpufit_get_capabilities();
 
 // returns 1 if cuda is available and 0 otherwise
 VISIBLE int gpufit_cuda_available();
