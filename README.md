@@ -1,28 +1,23 @@
-# Notes on building the qi2lab fork of Gpufit:
-First clone the repository
+# QI2lab GPUfit
+
+The QI2lab fork provides arbitrary-coordinate microscopy models and a public
+`pygpufit.gpufit.fit_constrained` interface. Stock upstream wheels have conflicting
+model IDs and cannot replace this fork.
+
+Python 3.12+ builds use root `pyproject.toml`, uv and scikit-build-core with the
+existing native CMake/CUDA optimizer. On Windows, install CUDA 12.8 Update 1,
+VS 2022 Build Tools with MSVC 14.38, a Windows SDK, CMake and Ninja, then run:
+
+```powershell
+uv lock
+powershell -NoProfile -File scripts/build_windows.ps1 -Action sync -Architectures 86
+uv run --locked --no-sync pytest
+powershell -NoProfile -File scripts/build_windows.ps1 -Action build -Architectures 86
 ```
-git clone https://github.com/QI2lab/Gpufit.git
-cd Gpufit
-```
 
-## building on Windows
-The build instructions for the Gpufit source suggest using Visual Studio 2013. However, this version is not compatible
-with certain all versions of CUDA/nvcc. 
-
-For example, with CUDA 11.2 the build files can be created with CMake using
-
-`cmake -G "Visual Studio 16 2019" C:\Sources\Gpufit`
-
-See my example batch files [for Windows](run_cmake_windows.bat). This script will generate Visual Studio project files. 
-
-Then, navigate to the build directory and open ALL_BUILD.vcxproj with Visual Studio. Go to `build -> build solution` and build the project.
-
-## building on Linux
-The Gpufit source code can be built on Linux using cmake and make. See my [example shell script](build_gpufit_linux.sh)
-
-# Installing pygpufit
-After compiling, the python package is located in either `<build directory>\pyGpufit` or `<build directory>\Debug\pyGpufit` depending on your build options
-Navigate to this folder, activate your conda or virtual environment, and install with `pip install .`
+See [prerequisites, build/install separation, native rebuilds and ABI identity](docs/qi2lab_build.md).
+The standard microscopy build requires cuBLAS and float32. Linux builds use
+`scripts/build_linux.sh`; Linux execution is pending on the Windows workstation.
 
 # Gpufit
 

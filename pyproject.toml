@@ -30,6 +30,7 @@ wheel.packages = ["Gpufit/python/pygpufit"]
 wheel.py-api = "py3"
 wheel.install-dir = "pygpufit"
 build.targets = ["Gpufit"]
+sdist.cmake = true
 sdist.include = ["Gpufit/**", "Cpufit/**", "tests/**", "examples/**", "CMakeLists.txt", "CMakePresets.json", "cmake/**", "scripts/**", "LICENSE.txt"]
 sdist.exclude = [".venv/**", ".uv-cache/**", "build/**", "dist/**"]
 

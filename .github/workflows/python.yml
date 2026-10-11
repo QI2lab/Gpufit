@@ -1,0 +1,54 @@
+name: Python and native artifacts
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      native:
+        description: Run configured Windows CUDA build and device runners
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  interface:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884
+        with:
+          version: '0.11.30'
+          python-version: '3.12.10'
+      - run: uv lock --check
+      - run: uv sync --locked --no-install-project
+      - run: uv run --locked --no-sync pytest Gpufit/python/tests/test_public_constraints.py
+      - run: uv run --locked --no-sync ruff check Gpufit/python/pygpufit/gpufit.py Gpufit/python/tests/test_public_constraints.py Gpufit/python/tests/test_cuda_constraints.py
+      - run: c++ -std=c++14 -I. tests/model_derivatives.cpp -o /tmp/model_derivatives && /tmp/model_derivatives
+  wheel:
+    if: github.event_name == 'workflow_dispatch' && inputs.native
+    runs-on: [self-hosted, Windows, X64, cuda-12.8-build]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884
+        with:
+          version: '0.11.30'
+      - shell: powershell
+        run: ./scripts/build_windows.ps1 -Action build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qi2lab-native-artifacts
+          path: |
+            dist/*
+            build/build_windows.log
+            build/microscopy/Gpufit/build_manifest.json
+  cuda:
+    if: github.event_name == 'workflow_dispatch' && inputs.native
+    runs-on: [self-hosted, Windows, X64, cuda-12.8-gpu]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884
+        with:
+          version: '0.11.30'
+      - shell: powershell
+        run: ./scripts/build_windows.ps1 -Action sync
+      - run: uv run --locked --no-sync pytest
