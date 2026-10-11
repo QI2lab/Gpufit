@@ -38,6 +38,8 @@ VISIBLE int gpufit
     int * output_n_iterations
 ) ;
 
+// QI2lab capability ABI 2: constraints is fit-major, n_fits * 2*n_parameters
+// interleaved lower/upper endpoints; constraint_types is shared across fits.
 VISIBLE int gpufit_constrained
 (
     size_t n_fits,

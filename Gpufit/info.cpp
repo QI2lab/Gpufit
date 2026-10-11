@@ -110,6 +110,10 @@ void Info::set_max_chunk_size()
         + sizeof(int)
         * (1 * n_parameters_to_fit_);                       // pivot vector
 #endif // USE_CUBLAS
+    if (use_constraints_)
+    {
+        one_fit_memory += sizeof(REAL) * 2 * n_parameters_;
+    }
     
     std::size_t tmp_chunk_size = available_gpu_memory_ / one_fit_memory;
     

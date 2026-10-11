@@ -2,6 +2,7 @@
 
 import ctypes
 import importlib.util
+import json
 from pathlib import Path
 
 import numpy as np
@@ -39,6 +40,16 @@ def binding(monkeypatch):
     spec = importlib.util.spec_from_file_location("binding_under_test", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    library.gpufit_get_capabilities = NativeFunction(
+        json.dumps(
+            {
+                "abi_version": 2,
+                "precision": "float32",
+                "models": module.MICROSCOPY_MODELS,
+                "constraints_layout": "fit-major-interleaved-lower-upper",
+            }
+        ).encode()
+    )
     return module, library
 
 
@@ -117,6 +128,7 @@ def test_malformed_inputs_rejected_before_native_call(binding, change):
 
 
 def test_reject_incompatible_native_binary(binding):
-    gf, _ = binding
+    gf, native = binding
+    native.gpufit_get_capabilities.result = b'{"abi_version":1}'
     with pytest.raises(RuntimeError, match="QI2lab|capabilit"):
         gf.get_capabilities()

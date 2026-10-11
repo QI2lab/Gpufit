@@ -92,6 +92,26 @@ def test_device_binary_identity():
     assert identity["models"]["GAUSS_3D_ROT_ARB"] == {"id": 15, "parameters": 11}
 
 
+def test_distinct_bounds_per_fit_across_chunks(request):
+    if _chunk_subprocess(request, "2"):
+        return
+    x = np.arange(20, dtype=np.float32)
+    data = np.tile(3 * x, (3, 1))
+    starts = np.tile(np.array([0, 0.5], np.float32), (3, 1))
+    bounds = np.array([[0, 0, 0, 1], [0, 0, 0, 2], [0, 0, 0, 0.75]], np.float32)
+    result = gf.fit_constrained(
+        data,
+        None,
+        gf.ModelID.LINEAR_1D,
+        starts,
+        bounds,
+        np.full(2, 3, np.int32),
+        parameters_to_fit=np.array([0, 1], np.int32),
+        user_info=x,
+    )
+    np.testing.assert_allclose(result[0][:, 1], bounds[:, 3], atol=2e-5)
+
+
 def test_actual_bounds_fixed_parameters_and_weighted_objective():
     x = np.arange(30, dtype=np.float32)
     data = (2 + 3 * x)[None, :]

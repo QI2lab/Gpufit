@@ -1,5 +1,6 @@
 {
-  "abi_version": 1,
+  "abi_version": 2,
+  "constraints_layout": "fit-major-interleaved-lower-upper",
   "distribution": "pyGpufit",
   "version": "@PROJECT_VERSION@",
   "source_revision": "@GPUFIT_SOURCE_REVISION@",

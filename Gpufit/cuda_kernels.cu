@@ -940,8 +940,9 @@ __global__ void cuda_project_parameters_to_box(
 
     REAL & parameter = parameters[fit_index * n_parameters + parameters_to_fit_indices[parameter_index]];
 
-    REAL const  & lower_bound = constraints[parameters_to_fit_indices[parameter_index] * 2 + LOWER_BOUND];
-    REAL const  & upper_bound = constraints[parameters_to_fit_indices[parameter_index] * 2 + UPPER_BOUND];
+    int const bound_offset = 2 * (fit_index * n_parameters + parameters_to_fit_indices[parameter_index]);
+    REAL const & lower_bound = constraints[bound_offset + LOWER_BOUND];
+    REAL const & upper_bound = constraints[bound_offset + UPPER_BOUND];
     
     int const & constraint_type = constraint_types[parameters_to_fit_indices[parameter_index]];
 

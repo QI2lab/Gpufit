@@ -144,9 +144,10 @@ def get_capabilities():
     except (AttributeError, TypeError, ValueError) as exc:
         raise RuntimeError("Invalid QI2lab GPUfit capability manifest") from exc
     if (
-        manifest.get("abi_version") != 1
+        manifest.get("abi_version") != 2
         or manifest.get("precision") != "float32"
         or manifest.get("models") != MICROSCOPY_MODELS
+        or manifest.get("constraints_layout") != "fit-major-interleaved-lower-upper"
     ):
         raise RuntimeError("Incompatible QI2lab GPUfit model/precision ABI")
     manifest["library_path"] = lib_path
@@ -377,6 +378,7 @@ def _fit(
         if np.any((sizes < 1) | (sizes > number_points) | (sizes != np.floor(sizes))):
             raise ValueError("user_info ROI sizes must be positive integers within number_points")
     if constrained:
+        get_capabilities()
         constraint_types = (
             np.zeros(number_parameters, np.int32) if constraint_types is None else constraint_types
         )
