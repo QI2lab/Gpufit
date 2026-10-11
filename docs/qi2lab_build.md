@@ -55,6 +55,8 @@ provenance; it is not a cryptographic attestation of an untrusted archive.
 `fit_constrained` accepts C-contiguous float32 constraints `(nfits, 2*nparams)`,
 interleaved lower/upper, and shared int32 `constraint_types` from
 `ConstraintType.FREE/LOWER/UPPER/LOWER_UPPER`. Group differing patterns. Active
+The capability ABI is 2: each fit has its own endpoints. Earlier fork binaries
+with a shared bound array are rejected before any constrained call.
 endpoints must be finite and starts feasible. Equal bounds require fixed
 parameters. LSE weights are inverse variances; MLE is a pure-Poisson objective.
 Inputs are host buffers with transfers, not zero-copy CuPy.
