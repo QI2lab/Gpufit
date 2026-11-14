@@ -6,7 +6,7 @@
 
 cmake_minimum_required( VERSION 3.26 )
 if(SKBUILD)
-  project(Gpufit VERSION 1.1.0 LANGUAGES CXX)
+  project(Gpufit VERSION 1.2.0 LANGUAGES CXX)
   set(CMAKE_CXX_STANDARD 14)
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
   add_subdirectory(Gpufit)
@@ -15,7 +15,7 @@ endif()
 set_property( GLOBAL PROPERTY USE_FOLDERS ON )
 
 if( NOT PROJECT_NAME )
-  project( Gpufit VERSION 1.1.0 )
+  project( Gpufit VERSION 1.2.0 )
   include( CTest )
 endif()
 
@@ -149,7 +149,7 @@ add_subdirectory( Gpufit )
 
 # Examples using Gpufit and Cpufit
 
-add_subdirectory( examples )
+add_subdirectory( examples/c++/gpu_vs_cpu_profiling )
 
 # Launcher
 #
@@ -188,6 +188,13 @@ if( PYTHONINTERP_FOUND )
     add_dependencies( RUN_PYTHON Gpufit )
     add_python_launcher( RUN_PYTHON
       "${CMAKE_SOURCE_DIR}/Gpufit/python"
+      "${Python_WORKING_DIRECTORY}"
+    )
+	add_custom_target( RUN_PYTHON_CPUFIT )
+    set_property( TARGET RUN_PYTHON_CPUFIT PROPERTY FOLDER CMakePredefinedTargets )
+    add_dependencies( RUN_PYTHON_CPUFIT Cpufit )
+    add_python_launcher( RUN_PYTHON_CPUFIT
+      "${CMAKE_SOURCE_DIR}/Cpufit/python"
       "${Python_WORKING_DIRECTORY}"
     )
   endif()

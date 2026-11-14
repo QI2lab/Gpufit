@@ -13,5 +13,23 @@ classdef ModelID
         SPLINE_3D = 10
         SPLINE_3D_MULTICHANNEL = 11
         SPLINE_3D_PHASE_MULTICHANNEL = 12
+        SPLINE_4D = 13
+        SPLINE_5D = 14
+        GAUSS_3D_ARB = 15
+        GAUSS_LOR_3D_ARB = 16
+        GAUSS_3D_ROT_ARB = 17
+        GAUSS_3D_ASYM_ARB = 18
+    end
+    methods (Static)
+        function v = validID(id)
+            meta = ?ModelID;
+            v = false;
+            for i = 1 : numel(meta.PropertyList)
+                property_value = meta.PropertyList(i).DefaultValue;
+                if id == property_value
+                    v = true;
+                end
+            end
+        end
     end
 end

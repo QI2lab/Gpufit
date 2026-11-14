@@ -1,6 +1,7 @@
 #ifndef GPUFIT_MODELS_CUH_INCLUDED
 #define GPUFIT_MODELS_CUH_INCLUDED
 
+#include <assert.h>
 #include "linear_1d.cuh"
 #include "gauss_1d.cuh"
 #include "gauss_2d.cuh"
@@ -18,6 +19,8 @@
 #include "gauss_lor_3d_arb.cuh"
 #include "gauss_3d_rot_arb.cuh"
 #include "gauss_3d_asymmetric_arb.cuh"
+#include "spline_4d.cuh"
+#include "spline_5d.cuh"
 
 __device__ void calculate_model(
     ModelID const model_id,
@@ -87,8 +90,14 @@ __device__ void calculate_model(
 	case GAUSS_3D_ASYM_ARB:
         calculate_gauss3d_asym_arb(parameters, total_n_fits, n_points, value, derivative, point_index, fit_index + chunk_fit_offset, chunk_index, user_info, user_info_size);
 	    break;
-    default:
+    case SPLINE_4D:
+        calculate_spline4d(parameters, n_fits, n_points, value, derivative, point_index, fit_index, chunk_index, user_info, user_info_size);
         break;
+    case SPLINE_5D:
+        calculate_spline5d(parameters, n_fits, n_points, value, derivative, point_index, fit_index, chunk_index, user_info, user_info_size);
+        break;
+    default:
+        assert(0); // unknown model ID
     }
 }
 
@@ -113,7 +122,9 @@ void configure_model(ModelID const model_id, int & n_parameters, int & n_dimensi
     case GAUSS_LOR_3D_ARB: 	    n_parameters = 7;  n_dimensions = 1; break;
     case GAUSS_3D_ROT_ARB:      n_parameters = 11; n_dimensions = 1; break;
 	case GAUSS_3D_ASYM_ARB:	    n_parameters = 8;  n_dimensions = 1; break;
-    default:                                                        break;
+    case SPLINE_4D:             n_parameters = 6; n_dimensions = 4; break;
+    case SPLINE_5D:             n_parameters = 7; n_dimensions = 5; break;
+    default: throw std::runtime_error("unknown model ID");
     }
 }
 

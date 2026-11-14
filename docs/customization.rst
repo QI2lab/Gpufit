@@ -27,29 +27,37 @@ of model parameters and dimensions must be specified as well.
 
 Detailed step by step instructions for adding a model function are given below.
 
-1. Define an additional model ID in file constants.h_. When using the language bindings, the model ID must also be added for Python (in gpufit.py), Matlab (in ModelID.m), Java (in Model.java). 
-2. Implement a CUDA device function within a newly created .cuh file in folder Gpufit/Gpufit/models according to the following template.
+1. Define an additional model ID in file `<Gpufit/constants.h>`_. To use wih Cpufit also add the model ID in `<Cpufit/interface.cpp>`_. When using the language bindings, the model ID must also be added 
+
+- for Python 
+    - in `<Gpufit/python/gpufit.py>`_ for pygpufit
+    - in `<Cpufit/python/cpufit.py>`_ for pycpufit
+- for Matlab in `<Gpufitmatlab/ModelID.m>`_
+- for  Java in `<Gpufit/java/gpufit/src/main/java/com/github/gpufit/Model.java>`_. 
+
+
+2. Implement a CUDA device function within a newly created .cuh file in folder Gpufit/Gpufit/models according to the following template. (The REAL type is defined in Gpufit/definitions.h to switch between single and double precision.)
 
 .. code-block:: cuda
 
     __device__ void ... (               // ... = function name
-        float const * parameters,
+        REAL const * parameters,
         int const n_fits,
         int const n_points,
-        float * value,
-        float * derivative,
+        REAL * value,
+        REAL * derivative,
         int const point_index,
         int const fit_index,
         int const chunk_index,
         char * user_info,
         std::size_t const user_info_size)
     {
-        ///////////////////////////// value //////////////////////////////
+        // value 
 
         value[point_index] = ... ;                      // formula calculating fit model values
 
-        /////////////////////////// derivative ///////////////////////////
-        float * current_derivative = derivative + point_index;
+        // derivative 
+        REAL * current_derivative = derivative + point_index;
 
         current_derivative[0 * n_points] = ... ;  // formula calculating derivative values with respect to parameters[0]
         current_derivative[1 * n_points] = ... ;  // formula calculating derivative values with respect to parameters[1]
@@ -106,7 +114,7 @@ function values and partial derivative values of the model function for a partic
 
 6.	After adding a new model function, if CMake is being used to configure the compiler, then CMake must be run again.  If not using CMake, the new model function file (the .cuh file) must be included in the project.
 7.	Re-build the Gpufit project.
-	
+
 Add a new fit estimator
 ------------------------
 
@@ -240,10 +248,10 @@ and the gradient and hessian values of the estimator given. For a concrete examp
         default:
             break;
         }
-		
+
 5.	After adding a new estimator, if CMake is being used to configure the compiler, then CMake must be run again. If not using CMake, the new estimator file (the .cuh file) must be included in the project.
 6.	Re-build the Gpufit project.
-		
+
 Future releases
 ---------------
 

@@ -17,10 +17,13 @@ enum ModelID {
     SPLINE_3D = 10,
     SPLINE_3D_MULTICHANNEL = 11,
     SPLINE_3D_PHASE_MULTICHANNEL = 12,
-    GAUSS_3D_ARB = 13,
-    GAUSS_LOR_3D_ARB = 14,
-    GAUSS_3D_ROT_ARB = 15,
-	GAUSS_3D_ASYM_ARB = 16,
+    SPLINE_4D = 13,
+    SPLINE_5D = 14,
+    // QI2lab extensions follow the upstream model IDs.
+    GAUSS_3D_ARB = 15,
+    GAUSS_LOR_3D_ARB = 16,
+    GAUSS_3D_ROT_ARB = 17,
+    GAUSS_3D_ASYM_ARB = 18
 };
 
 // estimator ID
@@ -32,7 +35,7 @@ enum FitState { CONVERGED = 0, MAX_ITERATION = 1, SINGULAR_HESSIAN = 2, NEG_CURV
 // return state
 enum ReturnState { OK = 0, ERROR = -1 };
 
-// input/output data loaction
+// input/output data location
 enum DataLocation { HOST = 0, DEVICE = 1 };
 
 // bounds

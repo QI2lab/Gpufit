@@ -46,7 +46,7 @@ directly. Normal wheel installation remains standards-compliant without uv.
 Wheels contain the native library, cuBLAS/cuBLASLt shared runtime dependencies,
 the CUDA license and `build_manifest.json`; CUDA and MSVC runtimes are linked
 statically. Tags are `py3-none-win_amd64` for the ctypes ABI. `get_capabilities()`
-validates the actual binary's float32 ABI and models 13--16; stock wheels are
+validates the actual binary's float32 ABI and models 15--18; stock wheels are
 incompatible. Dirty source builds are identified in the manifest. The sdist
 configure step includes a generated `cmake/source_identity.json` so its rebuild
 retains the originating checkout revision and dirty status. This records
@@ -54,12 +54,24 @@ provenance; it is not a cryptographic attestation of an untrusted archive.
 
 `fit_constrained` accepts C-contiguous float32 constraints `(nfits, 2*nparams)`,
 interleaved lower/upper, and shared int32 `constraint_types` from
-`ConstraintType.FREE/LOWER/UPPER/LOWER_UPPER`. Group differing patterns. Active
-The capability ABI is 2: each fit has its own endpoints. Earlier fork binaries
-with a shared bound array are rejected before any constrained call.
-endpoints must be finite and starts feasible. Equal bounds require fixed
+`ConstraintType.FREE/LOWER/UPPER/LOWER_UPPER`. Group differing patterns. Each fit
+has its own endpoints. Active endpoints must be finite and starts feasible. Equal bounds require fixed
 parameters. LSE weights are inverse variances; MLE is a pure-Poisson objective.
 Inputs are host buffers with transfers, not zero-copy CuPy.
+
+Upstream model IDs 0--14 are unchanged, including `SPLINE_4D=13` and
+`SPLINE_5D=14`. The microscopy IDs were reassigned to retain upstream numbering:
+
+| Model | Previous fork ID | Current ID | Parameters |
+| --- | --- | --- | --- |
+| `GAUSS_3D_ARB` | 13 | 15 | 7 |
+| `GAUSS_LOR_3D_ARB` | 14 | 16 | 7 |
+| `GAUSS_3D_ROT_ARB` | 15 | 17 | 11 |
+| `GAUSS_3D_ASYM_ARB` | 16 | 18 | 8 |
+
+Use `ModelID` names instead of hardcoded numbers, and rebuild the native library
+after updating. Capability ABI 3 rejects earlier binaries before microscopy or
+constrained calls. The fit-major constraint layout from ABI 2 is unchanged.
 
 `tests/model_derivatives.cpp` independently checks the existing kernel derivatives
 with finite differences. Compile it with `cl /EHsc /I. tests/model_derivatives.cpp`

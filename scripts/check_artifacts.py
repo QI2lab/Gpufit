@@ -5,6 +5,7 @@ import json
 import shutil
 import subprocess
 import tempfile
+import tomllib
 import zipfile
 from pathlib import Path
 from tarfile import open as open_tar
@@ -32,7 +33,9 @@ def check_wheel(wheel: Path, test_source: Path) -> dict:
         target = Path(directory)
         (target / "pyproject.toml").write_text(
             '[project]\nname="gpufit-artifact-acceptance"\nversion="0.0.0"\n'
-            'requires-python=">=3.12"\ndependencies=["pyGpufit==1.1.0","pytest==9.1.1"]\n'
+            'requires-python=">=3.12"\ndependencies=["pyGpufit=='
+            + identity["version"]
+            + '","pytest==9.1.1"]\n'
             '[tool.uv.sources]\npygpufit={path="' + wheel.as_posix() + '"}\n',
             encoding="utf-8",
         )
@@ -63,8 +66,11 @@ def main() -> None:
     parser.add_argument("--rebuild-sdist", action="store_true")
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
-    wheel = next((root / "dist").glob("*.whl"))
-    source_archive = next((root / "dist").glob("*.tar.gz"))
+    version = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))["project"][
+        "version"
+    ]
+    wheel = next((root / "dist").glob(f"*-{version}-*.whl"))
+    source_archive = next((root / "dist").glob(f"*-{version}.tar.gz"))
     original = check_wheel(wheel, root / "Gpufit/python/tests/test_cuda_constraints.py")
     with open_tar(source_archive) as archive:
         names = archive.getnames()

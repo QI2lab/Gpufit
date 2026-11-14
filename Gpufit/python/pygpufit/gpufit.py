@@ -91,16 +91,19 @@ class ModelID:
     CAUCHY_2D_ELLIPTIC = 4
     LINEAR_1D = 5
     FLETCHER_POWELL_HELIX = 6
+    FLETCHER_POWELL = FLETCHER_POWELL_HELIX
     BROWN_DENNIS = 7
     SPLINE_1D = 8
     SPLINE_2D = 9
     SPLINE_3D = 10
     SPLINE_3D_MULTICHANNEL = 11
     SPLINE_3D_PHASE_MULTICHANNEL = 12
-    GAUSS_3D_ARB = 13
-    GAUSS_LOR_3D_ARB = 14
-    GAUSS_3D_ROT_ARB = 15
-    GAUSS_3D_ASYM_ARB = 16
+    SPLINE_4D = 13
+    SPLINE_5D = 14
+    GAUSS_3D_ARB = 15
+    GAUSS_LOR_3D_ARB = 16
+    GAUSS_3D_ROT_ARB = 17
+    GAUSS_3D_ASYM_ARB = 18
 
 
 class EstimatorID:
@@ -123,12 +126,12 @@ class ConstraintType:
     LOWER_UPPER = 3
 
 
-MODEL_PARAMETER_COUNTS = dict(enumerate((4, 5, 6, 7, 6, 2, 3, 4, 3, 4, 5, 5, 6, 7, 7, 11, 8)))
+MODEL_PARAMETER_COUNTS = dict(enumerate((4, 5, 6, 7, 6, 2, 3, 4, 3, 4, 5, 5, 6, 6, 7, 7, 7, 11, 8)))
 MICROSCOPY_MODELS = {
-    "GAUSS_3D_ARB": {"id": 13, "parameters": 7},
-    "GAUSS_LOR_3D_ARB": {"id": 14, "parameters": 7},
-    "GAUSS_3D_ROT_ARB": {"id": 15, "parameters": 11},
-    "GAUSS_3D_ASYM_ARB": {"id": 16, "parameters": 8},
+    "GAUSS_3D_ARB": {"id": 15, "parameters": 7},
+    "GAUSS_LOR_3D_ARB": {"id": 16, "parameters": 7},
+    "GAUSS_3D_ROT_ARB": {"id": 17, "parameters": 11},
+    "GAUSS_3D_ASYM_ARB": {"id": 18, "parameters": 8},
 }
 
 
@@ -144,7 +147,7 @@ def get_capabilities():
     except (AttributeError, TypeError, ValueError) as exc:
         raise RuntimeError("Invalid QI2lab GPUfit capability manifest") from exc
     if (
-        manifest.get("abi_version") != 2
+        manifest.get("abi_version") != 3
         or manifest.get("precision") != "float32"
         or manifest.get("models") != MICROSCOPY_MODELS
         or manifest.get("constraints_layout") != "fit-major-interleaved-lower-upper"
@@ -361,9 +364,13 @@ def _fit(
         raise ValueError("weights must be finite and nonnegative")
     if user_info is not None and (not user_info.flags.c_contiguous or user_info.dtype.hasobject):
         raise ValueError("user_info must be contiguous without Python objects")
-    if model_id >= 13:
+    if model_id >= ModelID.GAUSS_3D_ARB:
         get_capabilities()
-        extras = 0 if model_id == 14 else (2 if model_id == 13 else 3)
+        extras = (
+            0
+            if model_id == ModelID.GAUSS_LOR_3D_ARB
+            else (2 if model_id == ModelID.GAUSS_3D_ARB else 3)
+        )
         expected = 3 * number_fits * number_points + number_fits + extras
         if (
             user_info is None

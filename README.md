@@ -1,8 +1,12 @@
 # QI2lab GPUfit
 
 The QI2lab fork provides arbitrary-coordinate microscopy models and a public
-`pygpufit.gpufit.fit_constrained` interface. Stock upstream wheels have conflicting
-model IDs and cannot replace this fork.
+`pygpufit.gpufit.fit_constrained` interface. Stock upstream wheels do not include
+these microscopy models and cannot replace this fork.
+
+Upstream model IDs are preserved, including `SPLINE_4D=13` and `SPLINE_5D=14`.
+QI2lab microscopy models now use IDs 15--18; use the named `ModelID` constants
+and rebuild the native library when updating from earlier fork versions.
 
 Python 3.12+ builds use root `pyproject.toml`, uv and scikit-build-core with the
 existing native CMake/CUDA optimizer. On Windows, install CUDA 12.8 Update 1,
@@ -60,6 +64,17 @@ Instructions for using the binary distribution may be found in the documentation
   Python examples.
 - Java binding, with Java examples.
 - The Gpufit manual in PDF format
+
+## Examples
+
+There are various examples that demonstrate the capabilities and usage of Gpufit. They can be found at the following locations:
+
+- /examples/c++ - C++ examples for Gpufit
+- /examples/c++/gpu_vs_cpu_profiling - C++ examples that use Gpufit and Cpufit
+- /examples/matlab - Matlab examples for Gpufit including spline fit examples (also requires [Gpuspline](https://github.com/gpufit/Gpuspline))
+- /examples/python - Python examples for Gpufit including spline fit examples (also requires [Gpuspline](https://github.com/gpufit/Gpuspline))
+- /Cpufit/matlab/examples - Matlab examples that only uses Cpufit
+- /Gpufit/java/gpufit/src/test/java/com/github/gpufit/examples - Java examples for Gpufit
 
 ## Authors
 

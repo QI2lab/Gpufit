@@ -11,7 +11,15 @@ import pytest
 pytestmark = pytest.mark.gpu
 
 
-@pytest.mark.parametrize("model_id", [13, 14, 15, 16])
+@pytest.mark.parametrize(
+    "model_id",
+    [
+        gf.ModelID.GAUSS_3D_ARB,
+        gf.ModelID.GAUSS_LOR_3D_ARB,
+        gf.ModelID.GAUSS_3D_ROT_ARB,
+        gf.ModelID.GAUSS_3D_ASYM_ARB,
+    ],
+)
 def test_custom_coordinates_across_internal_chunks(model_id, request):
     """Every chunk uses its own coordinates and the full batch's size table."""
     if _chunk_subprocess(request, "2"):
@@ -25,24 +33,45 @@ def test_custom_coordinates_across_internal_chunks(model_id, request):
     params = np.array(
         [
             [100, *c, 0.4, 0.8, 5]
-            if model_id in (13, 14)
-            else [100, *c, 0.4, 0.5, 0.8, 5, *([0, 0, 0] if model_id == 15 else [])]
+            if model_id in (gf.ModelID.GAUSS_3D_ARB, gf.ModelID.GAUSS_LOR_3D_ARB)
+            else [
+                100,
+                *c,
+                0.4,
+                0.5,
+                0.8,
+                5,
+                *([0, 0, 0] if model_id == gf.ModelID.GAUSS_3D_ROT_ARB else []),
+            ]
             for c in centers
         ],
         np.float32,
     )
     start = params.copy()
     start[:, 1:4] += 0.05
-    relative = coords / np.array([0.4, 0.4 if model_id in (13, 14) else 0.5, 0.8])[:, None]
+    relative = (
+        coords
+        / np.array(
+            [
+                0.4,
+                0.4 if model_id in (gf.ModelID.GAUSS_3D_ARB, gf.ModelID.GAUSS_LOR_3D_ARB) else 0.5,
+                0.8,
+            ]
+        )[:, None]
+    )
     image = 5 + 100 * np.exp(-0.5 * np.sum(relative**2, axis=0))
-    if model_id == 14:
+    if model_id == gf.ModelID.GAUSS_LOR_3D_ARB:
         lorentz = 1 + relative[2] ** 2
         image = 5 + 100 * np.exp(-0.5 * np.sum(relative[:2] ** 2, axis=0) / lorentz) / lorentz
     info = np.concatenate(
         [
             (coords[None] + centers[:, :, None]).ravel(),
             np.full(3, n),
-            np.zeros(0 if model_id == 14 else (2 if model_id == 13 else 3)),
+            np.zeros(
+                0
+                if model_id == gf.ModelID.GAUSS_LOR_3D_ARB
+                else (2 if model_id == gf.ModelID.GAUSS_3D_ARB else 3)
+            ),
         ]
     ).astype(np.float32)
     # Fix widths/angles to avoid Euler angle degeneracy at zero rotation.
@@ -89,7 +118,44 @@ def test_device_binary_identity():
     identity = gf.get_capabilities()
     assert identity["use_cublas"] is True
     assert identity["precision"] == "float32"
-    assert identity["models"]["GAUSS_3D_ROT_ARB"] == {"id": 15, "parameters": 11}
+    assert identity["models"]["GAUSS_3D_ROT_ARB"] == {"id": 17, "parameters": 11}
+
+
+@pytest.mark.parametrize("dimensions", [4, 5])
+@pytest.mark.parametrize("constrained", [False, True])
+def test_upstream_spline_recovery_across_chunks(dimensions, constrained, request):
+    if _chunk_subprocess(request, "2"):
+        return
+    model_id = gf.ModelID.SPLINE_4D if dimensions == 4 else gf.ModelID.SPLINE_5D
+    assert model_id == dimensions + 9  # Upstream's numeric ABI is unchanged.
+    coordinates = np.indices((2,) * dimensions).reshape(dimensions, -1)[::-1]
+    coefficients = np.zeros(4**dimensions, np.float32)
+    coefficients[0] = 1
+    for axis in range(dimensions):
+        coefficients[4 ** (dimensions - axis - 1)] = axis + 1
+    info = np.concatenate([np.full(dimensions, 2), np.ones(dimensions), coefficients]).astype(
+        np.float32
+    )
+    curve = 1 + np.arange(1, dimensions + 1) @ coordinates
+    expected = np.zeros((3, dimensions + 2), np.float32)
+    expected[:, 0] = [2, 3, 4]
+    expected[:, -1] = [1, 2, 3]
+    data = (expected[:, 0, None] * curve + expected[:, -1, None]).astype(np.float32)
+    start = expected.copy()
+    start[:, [0, -1]] = 0.5
+    mask = np.zeros(dimensions + 2, np.int32)
+    mask[[0, -1]] = 1
+    kwargs = {"user_info": info, "parameters_to_fit": mask, "tolerance": 1e-6}
+    if constrained:
+        bounds = np.zeros((3, 2 * (dimensions + 2)), np.float32)
+        bounds[:, 1::2] = 10
+        result = gf.fit_constrained(
+            data, None, model_id, start, bounds, np.full(dimensions + 2, 3, np.int32), **kwargs
+        )
+    else:
+        result = gf.fit(data, None, model_id, start, **kwargs)
+    np.testing.assert_array_equal(result[1], 0)
+    np.testing.assert_allclose(result[0], expected, atol=3e-4, rtol=3e-4)
 
 
 def test_distinct_bounds_per_fit_across_chunks(request):
@@ -136,14 +202,26 @@ def test_actual_bounds_fixed_parameters_and_weighted_objective():
     )
 
 
-@pytest.mark.parametrize("model_id", [13, 14, 15, 16])
+@pytest.mark.parametrize(
+    "model_id",
+    [
+        gf.ModelID.GAUSS_3D_ARB,
+        gf.ModelID.GAUSS_LOR_3D_ARB,
+        gf.ModelID.GAUSS_3D_ROT_ARB,
+        gf.ModelID.GAUSS_3D_ASYM_ARB,
+    ],
+)
 @pytest.mark.parametrize("constrained", [False, True])
 def test_arbitrary_coordinate_3d_recovery(model_id, constrained):
     z, y, x = np.meshgrid(
         np.linspace(-2, 2, 9), np.linspace(-1.5, 1.5, 13), np.linspace(-1.5, 1.5, 13), indexing="ij"
     )
     center = [0.13, -0.17, 0.24]  # XYZ parameter convention
-    sigma = [0.42, 0.42, 0.83] if model_id in (13, 14) else [0.42, 0.53, 0.83]
+    sigma = (
+        [0.42, 0.42, 0.83]
+        if model_id in (gf.ModelID.GAUSS_3D_ARB, gf.ModelID.GAUSS_LOR_3D_ARB)
+        else [0.42, 0.53, 0.83]
+    )
     image = 5 + 100 * np.exp(
         -0.5
         * (
@@ -152,7 +230,7 @@ def test_arbitrary_coordinate_3d_recovery(model_id, constrained):
             + ((z - center[2]) / sigma[2]) ** 2
         )
     )
-    if model_id == 14:
+    if model_id == gf.ModelID.GAUSS_LOR_3D_ARB:
         lorentz = 1 + ((z - center[2]) / sigma[2]) ** 2
         image = (
             5
@@ -165,7 +243,7 @@ def test_arbitrary_coordinate_3d_recovery(model_id, constrained):
             / lorentz
         )
     angles = [0.2, 0.3, 0.4]
-    if model_id == 15:
+    if model_id == gf.ModelID.GAUSS_3D_ROT_ARB:
 
         def rz(angle):
             c, s = np.cos(angle), np.sin(angle)
@@ -182,8 +260,14 @@ def test_arbitrary_coordinate_3d_recovery(model_id, constrained):
         ).reshape(x.shape)
     true = np.array(
         [100, *center, sigma[0], sigma[2], 5]
-        if model_id in (13, 14)
-        else [100, *center, *sigma, 5, *(angles if model_id == 15 else [])],
+        if model_id in (gf.ModelID.GAUSS_3D_ARB, gf.ModelID.GAUSS_LOR_3D_ARB)
+        else [
+            100,
+            *center,
+            *sigma,
+            5,
+            *(angles if model_id == gf.ModelID.GAUSS_3D_ROT_ARB else []),
+        ],
         np.float32,
     )
     start = true.copy()
@@ -193,7 +277,11 @@ def test_arbitrary_coordinate_3d_recovery(model_id, constrained):
         [
             np.stack([x.ravel(), y.ravel(), z.ravel()]).ravel(),
             [x.size],
-            np.zeros(0 if model_id == 14 else (2 if model_id == 13 else 3)),
+            np.zeros(
+                0
+                if model_id == gf.ModelID.GAUSS_LOR_3D_ARB
+                else (2 if model_id == gf.ModelID.GAUSS_3D_ARB else 3)
+            ),
         ]
     ).astype(np.float32)
     data = image.ravel()[None, :].astype(np.float32)
@@ -201,7 +289,9 @@ def test_arbitrary_coordinate_3d_recovery(model_id, constrained):
     if constrained:
         lower = true - np.maximum(1, abs(true))
         upper = true + np.maximum(1, abs(true))
-        lower[4 : 6 if model_id in (13, 14) else 7] = 0.05
+        lower[
+            4 : 6 if model_id in (gf.ModelID.GAUSS_3D_ARB, gf.ModelID.GAUSS_LOR_3D_ARB) else 7
+        ] = 0.05
         bounds = np.stack([lower, upper], axis=-1).reshape(1, -1).astype(np.float32)
         result = gf.fit_constrained(
             data, None, model_id, start, bounds, np.full(true.size, 3, np.int32), **kwargs

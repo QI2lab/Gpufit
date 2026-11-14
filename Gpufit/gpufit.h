@@ -20,8 +20,8 @@ extern "C" {
 
 VISIBLE int gpufit
 (
-    size_t n_fits,
-    size_t n_points,
+    std::size_t n_fits,
+    std::size_t n_points,
     REAL * data,
     REAL * weights,
     int model_id,
@@ -30,7 +30,7 @@ VISIBLE int gpufit
     int max_n_iterations,
     int * parameters_to_fit,
     int estimator_id,
-    size_t user_info_size,
+    std::size_t user_info_size,
     char * user_info,
     REAL * output_parameters,
     int * output_states,
@@ -38,12 +38,12 @@ VISIBLE int gpufit
     int * output_n_iterations
 ) ;
 
-// QI2lab capability ABI 2: constraints is fit-major, n_fits * 2*n_parameters
+// QI2lab capability ABI 3: constraints is fit-major, n_fits * 2*n_parameters
 // interleaved lower/upper endpoints; constraint_types is shared across fits.
 VISIBLE int gpufit_constrained
 (
-    size_t n_fits,
-    size_t n_points,
+    std::size_t n_fits,
+    std::size_t n_points,
     REAL * data,
     REAL * weights,
     int model_id,
@@ -54,7 +54,7 @@ VISIBLE int gpufit_constrained
     int max_n_iterations,
     int * parameters_to_fit,
     int estimator_id,
-    size_t user_info_size,
+    std::size_t user_info_size,
     char * user_info,
     REAL * output_parameters,
     int * output_states,
@@ -64,8 +64,8 @@ VISIBLE int gpufit_constrained
 
 VISIBLE int gpufit_cuda_interface
 (
-    size_t n_fits,
-    size_t n_points,
+    std::size_t n_fits,
+    std::size_t n_points,
     REAL * gpu_data,
     REAL * gpu_weights,
     int model_id,
@@ -73,12 +73,33 @@ VISIBLE int gpufit_cuda_interface
     int max_n_iterations,
     int * parameters_to_fit,
     int estimator_id,
-    size_t user_info_size,
+    std::size_t user_info_size,
     char * gpu_user_info,
     REAL * gpu_fit_parameters,
     int * gpu_output_states,
     REAL * gpu_output_chi_squares,
     int * gpu_output_n_iterations
+);
+
+VISIBLE int gpufit_constrained_cuda_interface
+(
+    std::size_t n_fits,
+    std::size_t n_points,
+    REAL* gpu_data,
+    REAL* gpu_weights,
+    int model_id,
+    REAL tolerance,
+    int max_n_iterations,
+    int* parameters_to_fit,
+    REAL* gpu_constraints,
+    int* constraint_types,
+    int estimator_id,
+    std::size_t user_info_size,
+    char* gpu_user_info,
+    REAL* gpu_fit_parameters,
+    int* gpu_output_states,
+    REAL* gpu_output_chi_squares,
+    int* gpu_output_n_iterations
 );
 
 VISIBLE char const * gpufit_get_last_error() ;

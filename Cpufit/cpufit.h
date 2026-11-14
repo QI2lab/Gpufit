@@ -9,6 +9,10 @@
 #define VISIBLE
 #endif
 
+#ifdef __APPLE__
+#define VISIBLE __attribute__((visibility("default")))
+#endif
+
 #include <cstddef>
 #include "../Gpufit/constants.h"
 #include "../Gpufit/definitions.h"
@@ -19,8 +23,8 @@ extern "C" {
 
 VISIBLE int cpufit
 (
-    size_t n_fits,
-    size_t n_points,
+    std::size_t n_fits,
+    std::size_t n_points,
     REAL * data,
     REAL * weights,
     int model_id,
@@ -29,13 +33,35 @@ VISIBLE int cpufit
     int max_n_iterations,
     int * parameters_to_fit,
     int estimator_id,
-    size_t user_info_size,
+    std::size_t user_info_size,
     char * user_info,
     REAL * output_parameters,
     int * output_states,
     REAL * output_chi_squares,
     int * output_n_iterations
 ) ;
+
+VISIBLE int cpufit_constrained
+(
+    std::size_t n_fits,
+    std::size_t n_points,
+    REAL* data,
+    REAL* weights,
+    int model_id,
+    REAL* initial_parameters,
+    REAL* constraints,
+    int* constraint_types,
+    REAL tolerance,
+    int max_n_iterations,
+    int* parameters_to_fit,
+    int estimator_id,
+    std::size_t user_info_size,
+    char* user_info,
+    REAL* output_parameters,
+    int* output_states,
+    REAL* output_chi_squares,
+    int* output_n_iterations
+);
 
 VISIBLE char const * cpufit_get_last_error() ;
 

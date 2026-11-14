@@ -33,7 +33,7 @@ int main() {
             starts[m][j] = old;
             float numerical = (upper[0]-lower[0])/(2*step);
             if(std::fabs(numerical-derivative[j]) > 0.01f + 0.005f*std::fabs(numerical)) {
-                std::printf("model %d parameter %d: analytic %.6g numerical %.6g\n",13+m,j,derivative[j],numerical);
+                std::printf("model %d parameter %d: analytic %.6g numerical %.6g\n",15+m,j,derivative[j],numerical);
                 ++failed;
             }
         }

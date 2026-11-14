@@ -43,7 +43,7 @@ def binding(monkeypatch):
     library.gpufit_get_capabilities = NativeFunction(
         json.dumps(
             {
-                "abi_version": 2,
+                "abi_version": 3,
                 "precision": "float32",
                 "models": module.MICROSCOPY_MODELS,
                 "constraints_layout": "fit-major-interleaved-lower-upper",
@@ -127,8 +127,39 @@ def test_malformed_inputs_rejected_before_native_call(binding, change):
     assert not native.gpufit_constrained.calls
 
 
-def test_reject_incompatible_native_binary(binding):
+@pytest.mark.parametrize("abi_version", [1, 2])
+def test_reject_incompatible_native_binary(binding, abi_version):
     gf, native = binding
-    native.gpufit_get_capabilities.result = b'{"abi_version":1}'
+    manifest = json.loads(native.gpufit_get_capabilities.result)
+    manifest["abi_version"] = abi_version
+    native.gpufit_get_capabilities.result = json.dumps(manifest).encode()
     with pytest.raises(RuntimeError, match="QI2lab|capabilit"):
+        gf.get_capabilities()
+
+
+@pytest.mark.parametrize("model_id, n_parameters, dimensions", [(13, 6, 4), (14, 7, 5)])
+def test_upstream_spline_ids_accept_spline_user_info(binding, model_id, n_parameters, dimensions):
+    gf, native = binding
+    # Upstream splines must bypass the arbitrary-coordinate microscopy layout.
+    del native.gpufit_get_capabilities
+    info = np.concatenate([np.ones(2 * dimensions), np.zeros(4**dimensions)]).astype(np.float32)
+    gf.fit(
+        np.ones((2, 16), np.float32),
+        None,
+        model_id,
+        np.ones((2, n_parameters), np.float32),
+        user_info=info,
+    )
+    args = native.gpufit.calls[-1]
+    assert args[4].value == model_id
+    assert args[10].value == info.nbytes
+
+
+def test_microscopy_rejects_previous_native_model_ids(binding):
+    gf, native = binding
+    manifest = json.loads(native.gpufit_get_capabilities.result)
+    for model in manifest["models"].values():
+        model["id"] -= 2
+    native.gpufit_get_capabilities.result = json.dumps(manifest).encode()
+    with pytest.raises(RuntimeError, match="Incompatible"):
         gf.get_capabilities()

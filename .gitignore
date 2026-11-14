@@ -15,9 +15,8 @@ CMakeUserPresets.json
 
 # Gradle/IntelliJ
 Gpufit/java/gpufit/.gradle
-Gpufit/java/gpufit/build
 Gpufit/java/gpufit/out
 
-# docs
-/docs/_build
+# build folders
+**/build/*
 

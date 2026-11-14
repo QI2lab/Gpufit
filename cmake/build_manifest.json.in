@@ -1,5 +1,5 @@
 {
-  "abi_version": 2,
+  "abi_version": 3,
   "constraints_layout": "fit-major-interleaved-lower-upper",
   "distribution": "pyGpufit",
   "version": "@PROJECT_VERSION@",
@@ -14,9 +14,9 @@
   "cuda_runtime_linkage": "static",
   "cublas_linkage": "shared",
   "models": {
-    "GAUSS_3D_ARB": {"id": 13, "parameters": 7},
-    "GAUSS_LOR_3D_ARB": {"id": 14, "parameters": 7},
-    "GAUSS_3D_ROT_ARB": {"id": 15, "parameters": 11},
-    "GAUSS_3D_ASYM_ARB": {"id": 16, "parameters": 8}
+    "GAUSS_3D_ARB": {"id": 15, "parameters": 7},
+    "GAUSS_LOR_3D_ARB": {"id": 16, "parameters": 7},
+    "GAUSS_3D_ROT_ARB": {"id": 17, "parameters": 11},
+    "GAUSS_3D_ASYM_ARB": {"id": 18, "parameters": 8}
   }
 }
