@@ -22,11 +22,11 @@ void Info::get_gpu_properties()
     std::size_t free_bytes;
     std::size_t total_bytes;
     CUDA_CHECK_STATUS(cudaMemGetInfo(&free_bytes, &total_bytes));
-    available_gpu_memory_ = std::size_t(double(free_bytes) * 0.1);
+    available_gpu_memory_ = std::size_t(double(free_bytes) * 0.5);
     
-    if (double(user_info_size_) > double(free_bytes) * 0.9)
+    if (data_location_ == HOST && user_info_size_ > available_gpu_memory_)
     {
-        throw std::runtime_error("maximum user info size exceeded");
+        throw std::runtime_error("0.5 free GPU memory budget cannot fit user info and one fit");
     }
 }
 

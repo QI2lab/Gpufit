@@ -79,6 +79,13 @@ in an initialized MSVC environment. CUDA tests are marked `gpu`; forwarding mock
 alone are not numerical validation. Linux execution is pending. The Linux script
 requires an approved supported host compiler/toolkit and performs no installation.
 
+The native chunk planner uses a fixed 0.5 of currently free GPU memory reported
+by `cudaMemGetInfo` as a planning budget for GPUfit's own allocations. It accounts
+for fixed buffers and the full host `user_info` copy before sizing chunk buffers;
+device-resident inputs are already reflected in free memory and are not charged
+again. Insufficient space for fixed buffers and one fit produces an error. This
+budget is not a reservation or a guarantee of 50% observed VRAM usage.
+
 Set `GPUFIT_MAX_CHUNK_SIZE` to a positive integer before starting Python to reduce
 the native chunk capacity. It never increases the device-memory-derived limit.
 The multi-chunk tests verify that each arbitrary-coordinate model reads the

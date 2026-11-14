@@ -24,6 +24,12 @@ jobs:
       - run: uv run --locked --no-sync pytest Gpufit/python/tests/test_public_constraints.py
       - run: uv run --locked --no-sync ruff check Gpufit/python/pygpufit/gpufit.py Gpufit/python/tests/test_public_constraints.py Gpufit/python/tests/test_cuda_constraints.py
       - run: c++ -std=c++14 -I. tests/model_derivatives.cpp -o /tmp/model_derivatives && /tmp/model_derivatives
+      - name: Native memory budget
+        run: |
+          c++ -std=c++14 -I. -Itests/stubs tests/memory_budget.cpp Gpufit/info.cpp -o /tmp/memory_budget
+          /tmp/memory_budget
+          c++ -std=c++14 -DUSE_CUBLAS -I. -Itests/stubs tests/memory_budget.cpp Gpufit/info.cpp -o /tmp/memory_budget_cublas
+          /tmp/memory_budget_cublas
       - name: CPU library and Python bindings
         run: |
           c++ -std=c++14 -shared -fPIC Cpufit/cpufit.cpp Cpufit/info.cpp Cpufit/interface.cpp Cpufit/lm_fit.cpp Cpufit/lm_fit_cpp.cpp -o Cpufit/python/pycpufit/libCpufit.so

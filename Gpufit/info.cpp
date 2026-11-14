@@ -115,11 +115,23 @@ void Info::set_max_chunk_size()
         one_fit_memory += sizeof(REAL) * 2 * n_parameters_;
     }
     
-    std::size_t tmp_chunk_size = available_gpu_memory_ / one_fit_memory;
+    // Account for fixed buffers while retaining the conservative per-fit estimate.
+    std::size_t const fixed_memory = sizeof(int)
+        * (n_parameters_to_fit_ + 1                      // fitted parameter indices, all_finished
+        + (use_constraints_ ? n_parameters_ : 0));      // constraint types
+    std::size_t const user_info_memory = data_location_ == HOST ? user_info_size_ : 0;
+    if (user_info_memory > available_gpu_memory_
+        || fixed_memory > available_gpu_memory_ - user_info_memory)
+    {
+        throw std::runtime_error("0.5 free GPU memory budget cannot fit fixed buffers and one fit");
+    }
+
+    std::size_t tmp_chunk_size
+        = (available_gpu_memory_ - user_info_memory - fixed_memory) / one_fit_memory;
     
     if (tmp_chunk_size == 0)
     {
-        throw std::runtime_error("not enough free GPU memory available");
+        throw std::runtime_error("0.5 free GPU memory budget cannot fit fixed buffers and one fit");
     }
 
     tmp_chunk_size = (std::min)(tmp_chunk_size, max_blocks_ / n_blocks_per_fit_);
